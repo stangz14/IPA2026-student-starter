@@ -1,0 +1,6 @@
+target: core
+request: 18-missing-method.yaml
+
+expected:
+  status: error
+  result: missing_method

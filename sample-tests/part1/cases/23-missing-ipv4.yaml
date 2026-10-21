@@ -1,0 +1,6 @@
+target: core
+request: 23-missing-ipv4.yaml
+
+expected:
+  status: error
+  result: missing_ipv4

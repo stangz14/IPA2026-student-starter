@@ -1,0 +1,6 @@
+target: core
+request: 26-invalid-admin-state.yaml
+
+expected:
+  status: error
+  result: invalid_admin_state

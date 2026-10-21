@@ -1,0 +1,6 @@
+target: core
+request: 28-netconf-plan-accepted.yaml
+
+expected:
+  status: ok
+  result: accepted

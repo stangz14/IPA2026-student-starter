@@ -1,0 +1,6 @@
+target: core
+request: 27-ansible-status-invalid-action.yaml
+
+expected:
+  status: error
+  result: invalid_action

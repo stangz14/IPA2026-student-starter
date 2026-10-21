@@ -1,0 +1,6 @@
+target: core
+request: 20-missing-action.yaml
+
+expected:
+  status: error
+  result: missing_action
