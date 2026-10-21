@@ -7,7 +7,7 @@ def validate_webex_envelope(
 ):
     """
     Validate the target bot's actual mention and YAML attachment.
-    Return an error response, or None when the envelope is valid.
+    Return an error response, or None when the envelope is valid
     """
     
     if not bot_person_id or not isinstance(mentioned_people, list):
