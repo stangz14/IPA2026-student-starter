@@ -1,0 +1,13 @@
+fixture: 08-create-different-values.yaml
+
+expected:
+  status: ok
+  result: planned
+  operation: create
+  changes:
+    ipv4:
+      to: 10.10.10.1/32
+    description:
+      to: IPA2026-66070789
+    admin_state:
+      to: down
