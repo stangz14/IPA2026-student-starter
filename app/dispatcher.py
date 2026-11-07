@@ -40,6 +40,17 @@ def dispatch_request(data):
     router = data["router"]
     interface = data["desired"]["interface"]
 
-    if action in ("status", "delete"):
-        return backend(router, interface["name"])
-    return backend(router, interface)
+    try:
+        if action in ("status", "delete"):
+            return backend(router, str(interface["name"]))
+
+        # YAML may load values such as `description: 2026` as numbers.
+        # Routers store text, so pass every managed field as a string.
+        interface = {
+            key: str(value) if value is not None else value
+            for key, value in interface.items()
+        }
+        return backend(router, interface)
+    except Exception:
+        # Any unexpected failure must still produce a reply.
+        return {"status": "error", "result": "backend_failed"}

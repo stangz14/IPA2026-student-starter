@@ -57,22 +57,29 @@ class WebexEventHandler:
         mentioned_people = message.get("mentionedPeople") or []
         files = message.get("files") or []
 
-        if len(files) > 1:
-            response = {"status": "error", "result": "multiple_attachments"}
-        elif not files:
-            response = self.processor(mentioned_people, None, self.bot_person_id)
-        else:
-            content = self.client.download_file(files[0])
-            # The directory (and the YAML inside) is removed even if processing fails.
-            with TemporaryDirectory(prefix="ipa2026-") as tmp:
-                path = Path(tmp) / "request.yaml"
-                path.write_bytes(content)
-                response = self.processor(
-                    mentioned_people, path, self.bot_person_id
-                )
+        try:
+            response = self._process(mentioned_people, files)
+        except Exception:
+            # Always reply: a silent bot fails every remaining Live case.
+            logger.exception("Failed to process request")
+            response = {"status": "error", "result": "backend_failed"}
 
         self.client.send_message(room_id, json.dumps(response))
         return response
+
+    def _process(self, mentioned_people, files):
+        if len(files) > 1:
+            return {"status": "error", "result": "multiple_attachments"}
+
+        if not files:
+            return self.processor(mentioned_people, None, self.bot_person_id)
+
+        content = self.client.download_file(files[0])
+        # The directory (and the YAML inside) is removed even if processing fails.
+        with TemporaryDirectory(prefix="ipa2026-") as tmp:
+            path = Path(tmp) / "request.yaml"
+            path.write_bytes(content)
+            return self.processor(mentioned_people, path, self.bot_person_id)
 
 
 def make_http_handler(submit_event):

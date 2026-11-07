@@ -28,20 +28,29 @@ def _connect(router):
 def _read(conn, interface_name):
     """Run the two status commands and return parsed (ip_info, descriptions)."""
 
-    ip_info = conn.send_command(
-        f"show ip interface {interface_name}",
-        use_textfsm=True,
-    )
+    from netmiko.utilities import get_structured_data_textfsm
+
+    ip_command = f"show ip interface {interface_name}"
+    raw_ip = conn.send_command(ip_command)
+
+    # A missing interface makes IOS reject the command. The TextFSM
+    # template raises on that output, so detect it before parsing.
+    if "Invalid input" in raw_ip or not raw_ip.strip():
+        ip_info = []
+    else:
+        ip_info = get_structured_data_textfsm(
+            raw_ip,
+            platform="cisco_ios",
+            command=ip_command,
+        )
+        # TextFSM returns raw text when nothing matched the template
+        if isinstance(ip_info, str):
+            raise RuntimeError("cannot parse show ip interface")
+
     descriptions = conn.send_command(
         "show interfaces description",
         use_textfsm=True,
     )
-
-    # TextFSM returns raw text when nothing matched the template
-    if isinstance(ip_info, str):
-        if ip_info.strip() and "Invalid input" not in ip_info:
-            raise RuntimeError("cannot parse show ip interface")
-        ip_info = []
 
     if not isinstance(descriptions, list):
         raise RuntimeError("cannot parse show interfaces description")

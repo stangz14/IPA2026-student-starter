@@ -25,21 +25,23 @@ def validate_request(data):
     if not router:
         return {"status": "error", "result": "missing_router"}
 
-    if router not in allow_router:
+    # Non-string values (lists, mappings, numbers) are never valid and some
+    # are unhashable, so check the type before looking them up.
+    if not isinstance(router, str) or router not in allow_router:
         return {"status": "error", "result": "invalid_router"}
 
     method = data.get("method")
     if not method:
         return {"status": "error", "result": "missing_method"}
 
-    if method not in allow_method_action:
+    if not isinstance(method, str) or method not in allow_method_action:
         return {"status": "error", "result": "invalid_method"}
 
     action = data.get("action")
     if not action:
         return {"status": "error", "result": "missing_action"}
 
-    if action not in allow_method_action[method]:
+    if not isinstance(action, str) or action not in allow_method_action[method]:
         return {"status": "error", "result": "invalid_action"}
 
     desired = data.get("desired")
@@ -62,7 +64,7 @@ def validate_request(data):
         admin_state = interface.get("admin_state")
         if not admin_state:
             return {"status": "error", "result": "missing_admin_state"}
-        if admin_state not in ["up", "down"]:
+        if not isinstance(admin_state, str) or admin_state not in ["up", "down"]:
             return {"status": "error", "result": "invalid_admin_state"}
 
     return {"status": "ok", "result": "accepted"}
